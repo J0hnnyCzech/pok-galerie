@@ -1,0 +1,28 @@
+<div id="gallery">Načítám...</div>
+<script>
+  const jsonUrl = 'https://script.google.com/macros/s/AKfycbyMqDL0zSt2SosqQ2abyAInQGQJtY49fYO52HoAJPePO_JhHFrOOn5mIg7fyMua7c75fA/exec';
+
+  async function loadGallery() {
+    try {
+      const res = await fetch(jsonUrl);
+      const images = await res.json();
+
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      images.forEach(img => {
+        const imageElem = document.createElement('img');
+        imageElem.src = img.url;
+        imageElem.alt = img.name;
+        imageElem.style.maxWidth = '150px';
+        imageElem.style.margin = '5px';
+        gallery.appendChild(imageElem);
+      });
+    } catch(e) {
+      document.getElementById('gallery').innerText = 'Chyba při načítání galerie';
+      console.error(e);
+    }
+  }
+
+  loadGallery();
+  setInterval(loadGallery, 300000); // každých 5 minut aktualizovat galerii
+</script>
