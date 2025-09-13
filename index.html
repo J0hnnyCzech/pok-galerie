@@ -1,14 +1,24 @@
-<div id="gallery">Načítám...</div>
+<div id="gallery" style="display:flex; flex-wrap: wrap; gap: 10px;"></div>
+
+<!-- Lightbox modal -->
+<div id="lightbox" style="display:none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:1000;">
+  <img id="lightbox-img" src="" alt="" style="max-width:90vw; max-height:90vh; box-shadow: 0 0 10px white;">
+  <a id="download-link" href="" download style="position:absolute; top:20px; right:20px; color:white; font-size:24px; text-decoration:none;">⬇️</a>
+</div>
+
 <script>
   const jsonUrl = 'https://script.google.com/macros/s/AKfycbyMqDL0zSt2SosqQ2abyAInQGQJtY49fYO52HoAJPePO_JhHFrOOn5mIg7fyMua7c75fA/exec';
+
+  const gallery = document.getElementById('gallery');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const downloadLink = document.getElementById('download-link');
 
   async function loadGallery() {
     try {
       const res = await fetch(jsonUrl);
       if (!res.ok) throw new Error('Chyba při načítání JSON: ' + res.status);
       const images = await res.json();
-      
-      const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
 
       if (images.length === 0) {
@@ -17,32 +27,34 @@
       }
 
       images.forEach(img => {
-        console.log('Načítám obrázek:', img.url);
-
         const imageElem = document.createElement('img');
         imageElem.src = img.url;
         imageElem.alt = img.name;
+        imageElem.style.width = '150px';
+        imageElem.style.cursor = 'pointer';
+        imageElem.style.borderRadius = '8px';
+        imageElem.title = img.name;
 
-        imageElem.style.maxWidth = '150px';
-        imageElem.style.margin = '5px';
-
-        // Přidáme ošetření pokud se obrázek nenačte
-        imageElem.onerror = () => {
-          console.warn('Obrázek se nepodařilo načíst:', img.url);
-          imageElem.style.display = 'none';
+        imageElem.onclick = () => {
+          lightbox.style.display = 'flex';
+          lightboxImg.src = img.url;
+          lightboxImg.alt = img.name;
+          downloadLink.href = img.url;
+          downloadLink.download = img.name;
         };
 
         gallery.appendChild(imageElem);
       });
     } catch (e) {
-      const gallery = document.getElementById('gallery');
       gallery.innerText = 'Chyba při načítání galerie: ' + e.message;
       console.error(e);
     }
   }
 
-  loadGallery();
-  // Periodická aktualizace galerie každých 5 minut
-  setInterval(loadGallery, 300000);
-</script>
+  lightbox.onclick = (e) => {
+    if (e.target !== lightboxImg) lightbox.style.display = 'none';
+  };
 
+  loadGallery();
+  setInterval(loadGallery, 300000); // automatická aktualizace každých 5 minut
+</script>
