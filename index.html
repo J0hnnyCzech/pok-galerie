@@ -5,24 +5,44 @@
   async function loadGallery() {
     try {
       const res = await fetch(jsonUrl);
+      if (!res.ok) throw new Error('Chyba při načítání JSON: ' + res.status);
       const images = await res.json();
-
+      
       const gallery = document.getElementById('gallery');
       gallery.innerHTML = '';
+
+      if (images.length === 0) {
+        gallery.innerText = 'Žádné obrázky k zobrazení.';
+        return;
+      }
+
       images.forEach(img => {
+        console.log('Načítám obrázek:', img.url);
+
         const imageElem = document.createElement('img');
         imageElem.src = img.url;
         imageElem.alt = img.name;
+
         imageElem.style.maxWidth = '150px';
         imageElem.style.margin = '5px';
+
+        // Přidáme ošetření pokud se obrázek nenačte
+        imageElem.onerror = () => {
+          console.warn('Obrázek se nepodařilo načíst:', img.url);
+          imageElem.style.display = 'none';
+        };
+
         gallery.appendChild(imageElem);
       });
-    } catch(e) {
-      document.getElementById('gallery').innerText = 'Chyba při načítání galerie';
+    } catch (e) {
+      const gallery = document.getElementById('gallery');
+      gallery.innerText = 'Chyba při načítání galerie: ' + e.message;
       console.error(e);
     }
   }
 
   loadGallery();
-  setInterval(loadGallery, 300000); // každých 5 minut aktualizovat galerii
+  // Periodická aktualizace galerie každých 5 minut
+  setInterval(loadGallery, 300000);
 </script>
+
