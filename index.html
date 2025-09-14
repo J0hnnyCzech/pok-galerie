@@ -7,17 +7,16 @@ function loadGallery() {
       let gallery = document.getElementById("gallery");
       gallery.innerHTML = '';
       data.forEach(img => {
-        let imgTag = document.createElement("img");
-        imgTag.src = img.url;
-        imgTag.alt = img.name;
-        imgTag.style.maxWidth = "200px";
-        imgTag.style.margin = "6px";
-        gallery.appendChild(imgTag);
+        let iframe = document.createElement("iframe");
+        iframe.src = img.url;
+        iframe.width = 200;
+        iframe.height = 200;
+        iframe.style.margin = "6px";
+        iframe.style.border = "none";
+        gallery.appendChild(iframe);
       });
     });
 }
-// načtení galerie při načtení stránky
 loadGallery();
-// automatické obnovení každých 5 minut
 setInterval(loadGallery, 300000);
 </script>
